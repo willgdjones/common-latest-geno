@@ -9,10 +9,10 @@
 ----------------------------------------------------------------------------------------
 */
 
-params.panel_path = "s3://lifebit-featured-datasets/beagle5/ref"
-params.fasta_path = "s3://lifebit-featured-datasets/beagle5/hs37d5.fa.gz"
-params.genotypes_path = "s3://lifebit-featured-datasets/genotypes"
-params.chromosome_regions = "s3://lifebit-featured-datasets/beagle5/hs37d5.txt"
+params.panel_path = "s3://lifebit-featured-datasets/modules/beagle5/ref"
+params.fasta_path = "s3://lifebit-featured-datasets/modules/beagle5/hs37d5.fa.gz"
+params.genotypes_path = "s3://lifebit-featured-datasets/modules/genotypes"
+params.chromosome_regions = "s3://lifebit-featured-datasets/beagle5/modules/hs37d5.txt"
 params.regex = ~/chr(.*).1kg.phase3.v5a.b37.bref3/
 
 /*--------------------------------------------------
@@ -200,7 +200,7 @@ imputedChrs
 process mergeChromosomes {
   container 'vandhanak/bcftools:1.3.1'
   tag "${name}"
-  publishDir 'results'
+  publishDir 'results', mode: 'copy'
 
   input:
   set val(name), file('imputed_chrs_*.vcf.gz'), file(reheader) from sampleImputedChrs
