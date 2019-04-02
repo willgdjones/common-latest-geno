@@ -20,10 +20,20 @@ params.regex = ~/chr(.*).1kg.phase3.v5a.b37.bref3/
 ---------------------------------------------------*/
 
 if(params.genotypes_path) {
-  Channel
-      .fromFilePairs("${params.genotypes_path}/*", size: 1)
-      .ifEmpty { exit 1, "${params.genotypes_path}/*.txt not found"}
-      .set{genoChannel}
+  if(params.genotypes_path.endsWith(".txt")) {
+
+     Channel
+        .fromPath( "${params.genotypes_path}" )
+        .map { row -> [ file(row).baseName, [ file( row ) ] ] }
+        .ifEmpty { exit 1, "${params.genotypes_path} not found"}
+        .set { genoChannel }
+
+  } else {
+    Channel
+        .fromFilePairs("${params.genotypes_path}/*", size: 1)
+        .ifEmpty { exit 1, "${params.genotypes_path}/*.txt not found"}
+        .set{genoChannel}
+  }
 } else {
   exit 1, "please specify --genotypes OR --genotypes_path"
 }
