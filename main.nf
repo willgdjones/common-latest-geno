@@ -157,6 +157,8 @@ process bcftools {
 
   script:
   """
+  # for lines where genotype contains one allele (non-autosomal chrs), duplicate the allele so that it's homozygous
+  awk '{OFS="\t"; if (((length(\$4) == 2 ))) \$4=\$4\$4; print \$0}' ${genotype_file} > tmp && mv tmp ${genotype_file}
   bcftools convert --tsv2vcf ${genotype_file}  -f ${fasta_file} -s $name -Oz -o ${name}.tmp.vcf.gz
   bcftools filter --set-GTs . -e 'FMT/GT="."' -Oz -o ${name}.filt.vcf.gz ${name}.tmp.vcf.gz
   bcftools view -t "^MT" -f PASS -Oz -o ${name}.vcf.gz ${name}.filt.vcf.gz
