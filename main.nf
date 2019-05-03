@@ -225,9 +225,16 @@ process mergeChromosomes {
 
   script:
   """
+  echo "#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  $name" >> $reheader
   ls  *.vcf.gz | while read vcf; do tabix -fp vcf \$vcf; done
   bcftools concat -Oz -o ${name}.tmp.vcf.gz imputed_chrs_*.vcf.gz
   bcftools reheader -h $reheader -o ${name}.vcf.gz  ${name}.tmp.vcf.gz
+
+  # sort the output VCF file
+  gunzip ${name}.vcf.gz
+  grep "^#" ${name}.vcf | uniq > output.vcf
+  grep -v "^#" ${name}.vcf | sort -k1,1V -k2,2g >> output.vcf
+  cat output.vcf > ${name}.vcf && gzip ${name}.vcf
   """
 }
 
