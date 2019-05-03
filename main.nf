@@ -157,8 +157,11 @@ process bcftools {
 
   script:
   """
+  # convert ancestry files
+  sed 's/23/X/g; s/24/Y/g; s/25/MT/g; s/26/X/g' ${genotype_file} > tmp.txt
   # for lines where genotype contains one allele (non-autosomal chrs), duplicate the allele so that it's homozygous
-  awk '{OFS="\t"; if (((length(\$4) == 2 ))) \$4=\$4\$4; print \$0}' ${genotype_file} > tmp && mv tmp ${genotype_file}
+  awk '{OFS="\t"; if (((length(\$4) == 2 ))) \$4=\$4\$4; print \$0}' tmp.txt > ${genotype_file}
+
   bcftools convert --tsv2vcf ${genotype_file}  -f ${fasta_file} -s $name -Oz -o ${name}.tmp.vcf.gz
   bcftools filter --set-GTs . -e 'FMT/GT="."' -Oz -o ${name}.filt.vcf.gz ${name}.tmp.vcf.gz
   bcftools view -t "^MT" -f PASS -Oz -o ${name}.vcf.gz ${name}.filt.vcf.gz
