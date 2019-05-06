@@ -197,7 +197,7 @@ process beagle {
     avail_mem = task.memory.toGiga()
   }
   """
-  beagle -Xmx${avail_mem}g ref=${ref_file} gt=${chr_genotype_file} out=${chr_genotype_file}.imputed chrom=${region}
+  beagle -Xmx${avail_mem}g ref=${ref_file} gt=${chr_genotype_file} out=${chr_genotype_file}.imputed chrom=${region} gp=true
   """
 }
 
