@@ -228,7 +228,7 @@ process mergeChromosomes {
 
   output:
   file("${name}.vcf.bgz") into sampleImputed
-  file("${name}.vcf.tbi") into sampleImputedIndex
+  file("${name}.vcf.bgz.tbi") into sampleImputedIndex
 
   script:
   """
@@ -242,7 +242,9 @@ process mergeChromosomes {
   grep "^#" ${name}.vcf | uniq > output.vcf
   grep -v "^#" ${name}.vcf | sort -k1,1V -k2,2g >> output.vcf
   cat output.vcf > ${name}.vcf
-  bgzip -c ${name}.vcf > ${name}.vcf.bgz
-  tabix -p vcf ${name}.vcf.bgz.tbi
+
+  https://www.biostars.org/p/59492/
+  bcftools view ${name}.vcf -Oz -o ${name}.vcf.bgz
+  bcftools index ${name}.vcf.bgz
   """
 }
