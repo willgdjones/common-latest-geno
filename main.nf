@@ -243,7 +243,7 @@ process mergeChromosomes {
   grep -v "^#" ${name}.vcf | sort -k1,1V -k2,2g >> output.vcf
   cat output.vcf > ${name}.vcf
 
-  https://www.biostars.org/p/59492/
+  # https://www.biostars.org/p/59492/
   bcftools view ${name}.vcf -Oz -o ${name}.vcf.bgz
   bcftools index ${name}.vcf.bgz
   """
