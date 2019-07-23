@@ -39,7 +39,7 @@ if(params.genotypes_path) {
 }
 
 /*--------------------------------------------------
-  Genome panel reference files from 1k Genomes 
+  Genome panel reference files from 1k Genomes
 ---------------------------------------------------*/
 
 if(params.panel_path) {
@@ -49,7 +49,7 @@ if(params.panel_path) {
                 chr_match[0][1]
         }
       .filter{ it ->
-        def match = it[0] =~ ~/^[0-9]*/ 
+        def match = it[0] =~ ~/^[0-9]*/
         match[0]
       }
       .ifEmpty { exit 1, "${params.panel_path} not found"}
@@ -66,13 +66,13 @@ if(params.chromosome_regions) {
     Channel
       .fromPath(params.chromosome_regions)
       .splitText(by: 1)
-      .map{ line -> 
+      .map{ line ->
         def chr = line.split(':')
         [chr[0], line]
       }
       .ifEmpty { exit 1, "${params.chromosome_regions} not found"}
       .phase(referencePanel)
-      .map{ chr_regions -> 
+      .map{ chr_regions ->
         [chr_regions[0][0], chr_regions[0][1].strip(), chr_regions[1][1]]
       }
       .set{regionsReferencePanel}
@@ -95,10 +95,10 @@ if("${params.fasta_path}".endsWith(".gz")){
   process unzip {
     input:
     file(fasta_file) from genome2unzip
-    
+
     output:
-    file('*.fa') into (genomeToBeIndexed, genomeAssembly)  
-    
+    file('*.fa') into (genomeToBeIndexed, genomeAssembly)
+
     script:
     """
     gunzip -d -f ${fasta_file}
@@ -227,7 +227,8 @@ process mergeChromosomes {
   set val(name), file('imputed_chrs_*.vcf.gz'), file(reheader) from sampleImputedChrs
 
   output:
-  file("${name}.vcf.gz") into sampleImputed
+  file("${name}.vcf.bgz") into sampleImputed
+  file("${name}.vcf.tbi") into sampleImputedIndex
 
   script:
   """
@@ -240,7 +241,8 @@ process mergeChromosomes {
   gunzip ${name}.vcf.gz
   grep "^#" ${name}.vcf | uniq > output.vcf
   grep -v "^#" ${name}.vcf | sort -k1,1V -k2,2g >> output.vcf
-  cat output.vcf > ${name}.vcf && gzip ${name}.vcf
+  cat output.vcf > ${name}.vcf
+  bgzip -c ${name}.vcf > ${name}.vcf.bgz
+  tabix -p vcf ${name}.vcf.bgz.tbi
   """
 }
-
